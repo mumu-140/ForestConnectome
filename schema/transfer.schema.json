@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "OrthologyTransfer",
+  "type": ["object", "null"],
+  "properties": {
+    "source_claim_id": {"type": "string"},
+    "source_taxon_id": {"type": "integer"},
+    "target_taxon_id": {"type": "integer"},
+    "orthogroup_id": {"type": ["string", "null"]},
+    "orthology_type": {"enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many", "homology_only"]},
+    "synteny_support": {"type": ["boolean", "null"]},
+    "phylogenetic_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "sequence_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "expression_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "transfer_tier": {"enum": ["T1", "T2", "T3", "T4"]},
+    "transfer_confidence": {"type": "number", "minimum": 0, "maximum": 1}
+  }
+}

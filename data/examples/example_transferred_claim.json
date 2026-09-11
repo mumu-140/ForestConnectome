@@ -1,0 +1,37 @@
+{
+  "claim_id": "FC:transfer:example-001",
+  "subject": {
+    "entity_id": "gene:3702:AT5G12870",
+    "entity_type": "gene",
+    "label": "MYB46",
+    "taxon_id": 3702,
+    "species": "Arabidopsis thaliana",
+    "canonical_gene_id": "AT5G12870",
+    "aliases": [],
+    "resolution_status": "exact"
+  },
+  "predicate": "INVOLVED_IN",
+  "object": {
+    "entity_id": "process:secondary_cell_wall_formation",
+    "entity_type": "biological_process",
+    "label": "secondary cell wall formation",
+    "taxon_id": null,
+    "species": null,
+    "aliases": [],
+    "resolution_status": "not_applicable"
+  },
+  "evidence_origin": "direct",
+  "assertion_status": "observed",
+  "evidence_type": "genetic",
+  "species_scope": "exact_species",
+  "confidence": 0.95,
+  "provenance": {
+    "source_id": "example-source",
+    "pmid": null,
+    "doi": null,
+    "chunk_id": "example-chunk",
+    "evidence_text": "Example placeholder only; replace with source evidence.",
+    "extractor_version": "manual-example"
+  },
+  "transfer": null
+}

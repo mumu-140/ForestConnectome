@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ForestConnectomeEntity",
+  "type": "object",
+  "required": ["entity_id", "entity_type", "label"],
+  "properties": {
+    "entity_id": {"type": "string"},
+    "entity_type": {"type": "string"},
+    "label": {"type": "string"},
+    "taxon_id": {"type": ["integer", "null"]},
+    "species": {"type": ["string", "null"]},
+    "genome_build": {"type": ["string", "null"]},
+    "canonical_gene_id": {"type": ["string", "null"]},
+    "symbol": {"type": ["string", "null"]},
+    "aliases": {"type": "array", "items": {"type": "string"}},
+    "definition": {"type": ["string", "null"]},
+    "resolution_status": {"enum": ["exact", "alias_resolved", "orthology_inferred", "unresolved", "not_applicable"]}
+  }
+}

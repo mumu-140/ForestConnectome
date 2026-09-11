@@ -1,0 +1,12 @@
+reference_species:
+  - scientific_name: Arabidopsis thaliana
+    taxon_id: 3702
+    role: reference
+
+target_species:
+  - scientific_name: Populus trichocarpa
+    taxon_id: 3694
+    role: primary_target
+    aliases:
+      - P. trichocarpa
+      - black cottonwood
