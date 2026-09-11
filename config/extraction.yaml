@@ -1,0 +1,21 @@
+chunking:
+  max_chars: 12000
+  overlap_chars: 800
+  preferred_sections:
+    - abstract
+    - introduction
+    - results
+    - discussion
+
+extraction:
+  keep_assertion_status:
+    - observed
+    - inferred
+    - predicted
+    - hypothesized
+    - background
+  direct_graph_default_statuses:
+    - observed
+    - inferred
+  require_verbatim_evidence_span: true
+  store_api_response: false
