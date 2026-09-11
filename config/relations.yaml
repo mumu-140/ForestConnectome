@@ -7,6 +7,7 @@ canonical_relations:
   - EXPRESSED_IN
   - LOCALIZED_IN
   - INVOLVED_IN
+  - HAS_MOLECULAR_FUNCTION
   - ASSOCIATED_WITH
   - ENCODES
   - PRODUCES
@@ -37,3 +38,24 @@ passive_relations:
   is activated by: REGULATES_POSITIVELY
   is repressed by: REGULATES_NEGATIVELY
   is inhibited by: INHIBITS
+
+transfer_policy:
+  automatic_candidate_predicates:
+    - INVOLVED_IN
+    - HAS_MOLECULAR_FUNCTION
+  never_automatic_from_orthology_alone:
+    - REGULATES
+    - REGULATES_POSITIVELY
+    - REGULATES_NEGATIVELY
+    - BINDS
+    - INTERACTS_WITH
+    - EXPRESSED_IN
+    - ASSOCIATED_WITH
+    - CAUSES
+    - PROMOTES
+    - INHIBITS
+  rules:
+    - "Only T1 can ever become an automatic candidate."
+    - "T2 is review-only because one-to-many/many-to-one implies duplication risk."
+    - "T3 is hypothesis-only; T4 is blocked."
+    - "Automatic functional transfer additionally requires passed taxon constraints and broad/moderate term specificity."

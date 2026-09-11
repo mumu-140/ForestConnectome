@@ -8,14 +8,26 @@ chunking:
     - discussion
 
 extraction:
-  keep_assertion_status:
+  assertion_statuses:
     - observed
     - inferred
     - predicted
     - hypothesized
-    - background
-  direct_graph_default_statuses:
+  study_roles:
+    - current_result
+    - prior_work
+    - review_statement
+    - discussion_interpretation
+    - unknown
+  polarities:
+    - affirmed
+    - negated
+    - uncertain
+  direct_graph_default_assertion_statuses:
     - observed
     - inferred
+  require_current_result_for_auto_accept: true
+  require_affirmed_polarity_for_auto_accept: true
   require_verbatim_evidence_span: true
   store_api_response: false
+  model_confidence_raw_is_probability: false

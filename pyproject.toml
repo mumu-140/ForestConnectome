@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "forestconnectome"
-version = "0.2.0"
+version = "0.3.0"
 description = "Comparative woody-plant knowledge graph with explicit orthology transfer"
 requires-python = ">=3.11"
 dependencies = [
@@ -17,6 +17,7 @@ dependencies = [
 literature = ["biopython>=1.81"]
 llm = ["openai>=1.75"]
 resolution = ["numpy>=1.26", "pandas>=2.2", "pyarrow>=15", "faiss-cpu>=1.8"]
+calibration = ["scikit-learn>=1.5"]
 all = [
   "biopython>=1.81",
   "openai>=1.75",
@@ -24,6 +25,7 @@ all = [
   "pandas>=2.2",
   "pyarrow>=15",
   "faiss-cpu>=1.8",
+  "scikit-learn>=1.5",
 ]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 

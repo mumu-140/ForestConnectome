@@ -32,8 +32,9 @@ PubMed species+gene queries
 
 Arabidopsis direct claims
         + orthology/synteny mappings
-        -> T1/T2/T3/T4 transfer policy
-        -> Populus predicted claim layer
+        -> T1/T2/T3/T4 orthology tier
+        -> predicate/taxon/specificity transfer gate
+        -> Populus prediction / review / hypothesis layer
 ```
 
 The OpenAI extractor uses the Responses API with strict JSON-schema output and can emit Batch API JSONL for `/v1/responses`.
@@ -42,7 +43,6 @@ The OpenAI extractor uses the Responses API with strict JSON-schema output and c
 
 ```bash
 python -m pip install -e '.[dev]'
-# Add literature, LLM and resolution dependencies when needed:
 python -m pip install -e '.[all]'
 ```
 
@@ -51,15 +51,13 @@ python -m pip install -e '.[all]'
 Chunk a plain-text article section:
 
 ```bash
-forestconnectome chunk abstract.txt chunks.jsonl \
-  --source-id PMID:12345678 --section abstract
+forestconnectome chunk abstract.txt chunks.jsonl --source-id PMID:12345678 --section abstract
 ```
 
 Build a Batch API input file:
 
 ```bash
-forestconnectome build-openai-batch chunks.jsonl extraction_batch.jsonl \
-  --model gpt-5.6-luna
+forestconnectome build-openai-batch chunks.jsonl extraction_batch.jsonl --model gpt-5.6-luna
 ```
 
 API keys are never stored in the repository. Use `OPENAI_API_KEY`, `NCBI_EMAIL` and optionally `NCBI_API_KEY`.
@@ -72,9 +70,10 @@ API keys are never stored in the repository. Use `OPENAI_API_KEY`, `NCBI_EMAIL` 
 
 - `docs/ARCHITECTURE.md` — layer boundaries and transfer policy
 - `docs/PLANTCONNECTOME_PORT.md` — what is reproduced from PlantConnectome and what ForestConnectome changes
+- `docs/TRANSFER_POLICY.md` — literature-driven orthology-vs-edge-transfer guardrails
 - `data/reference/README.md` — taxon-aware gene alias table contract
 - `schema/` — entity, claim and transfer JSON schemas
 
 ## Status
 
-v0.2 establishes the executable ingestion/extraction/resolution/transfer skeleton. The next milestone is real Arabidopsis and Populus identifier catalogs plus a curated benchmark corpus before large-scale literature processing.
+v0.3 separates orthology strength from claim transferability, adds per-endpoint/study taxon context, separates assertion/study-role/polarity, fixes transferred-evidence semantics, and reserves probability-like confidence for benchmark calibration. The next milestone is ontology grounding plus real Arabidopsis/Populus benchmark data before large-scale propagation.
