@@ -21,8 +21,11 @@
         "pmid": {"type": ["string", "null"]},
         "doi": {"type": ["string", "null"]},
         "chunk_id": {"type": ["string", "null"]},
+        "section": {"type": ["string", "null"]},
         "evidence_text": {"type": ["string", "null"]},
-        "extractor_version": {"type": ["string", "null"]}
+        "relationship_basis": {"type": ["string", "null"]},
+        "extractor_version": {"type": ["string", "null"]},
+        "model": {"type": ["string", "null"]}
       }
     },
     "transfer": {"$ref": "transfer.schema.json"}
