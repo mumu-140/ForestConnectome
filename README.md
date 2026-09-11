@@ -27,12 +27,17 @@ PubMed species+gene queries
         -> structured LLM extraction
         -> evidence pre-validation
         -> taxon-aware gene alias resolution
+        -> GO / PO / ChEBI grounding
+        -> embedding + LLM fallback for unresolved concepts
         -> active-direction relation normalization
         -> direct claim JSONL
 
 Arabidopsis direct claims
-        + orthology/synteny mappings
-        -> T1/T2/T3/T4 orthology tier
+        + Ensembl Plants Compara
+        + OrthoFinder v3 gene-tree/duplication evidence
+        + MCScanX_h collinearity evidence
+        -> fused T1/T2/T3/T4 orthology tier
+        -> GO taxon constraints
         -> predicate/taxon/specificity transfer gate
         -> Populus prediction / review / hypothesis layer
 ```
@@ -43,6 +48,7 @@ The OpenAI extractor uses the Responses API with strict JSON-schema output and c
 
 ```bash
 python -m pip install -e '.[dev]'
+# Add literature, LLM and resolution dependencies when needed:
 python -m pip install -e '.[all]'
 ```
 
@@ -51,13 +57,15 @@ python -m pip install -e '.[all]'
 Chunk a plain-text article section:
 
 ```bash
-forestconnectome chunk abstract.txt chunks.jsonl --source-id PMID:12345678 --section abstract
+forestconnectome chunk abstract.txt chunks.jsonl \
+  --source-id PMID:12345678 --section abstract
 ```
 
 Build a Batch API input file:
 
 ```bash
-forestconnectome build-openai-batch chunks.jsonl extraction_batch.jsonl --model gpt-5.6-luna
+forestconnectome build-openai-batch chunks.jsonl extraction_batch.jsonl \
+  --model gpt-5.6-luna
 ```
 
 API keys are never stored in the repository. Use `OPENAI_API_KEY`, `NCBI_EMAIL` and optionally `NCBI_API_KEY`.
@@ -71,9 +79,29 @@ API keys are never stored in the repository. Use `OPENAI_API_KEY`, `NCBI_EMAIL` 
 - `docs/ARCHITECTURE.md` — layer boundaries and transfer policy
 - `docs/PLANTCONNECTOME_PORT.md` — what is reproduced from PlantConnectome and what ForestConnectome changes
 - `docs/TRANSFER_POLICY.md` — literature-driven orthology-vs-edge-transfer guardrails
-- `data/reference/README.md` — taxon-aware gene alias table contract
+- `docs/ONTOLOGY_GROUNDING.md` — GO/PO/ChEBI grounding and GO taxon constraints
+- `docs/COMPARATIVE_EVIDENCE.md` — Ensembl + OrthoFinder + MCScanX evidence fusion
+- `docs/BENCHMARK.md` — evidence-span benchmark protocol
+- `docs/METHOD_SOURCES.md` — upstream method/data references
 - `schema/` — entity, claim and transfer JSON schemas
+
+## v0.4 data and evidence layer
+
+Snapshot the official concept ontologies:
+
+```bash
+forestconnectome fetch-ontologies --output-dir data/reference/ontologies
+```
+
+Convert OrthoFinder pairwise orthologues for MCScanX_h and import collinearity evidence:
+
+```bash
+forestconnectome build-mcscanx-homology orthologues.tsv arabidopsis_populus.homology
+forestconnectome import-mcscanx arabidopsis_populus.collinearity synteny.jsonl
+```
+
+The first real benchmark seeds live in `data/benchmark/seed_articles.tsv` and `data/benchmark/gold_seed.jsonl`. They deliberately contain both functional-conservation positives and duplicate/expression/regulatory divergence controls.
 
 ## Status
 
-v0.3 separates orthology strength from claim transferability, adds per-endpoint/study taxon context, separates assertion/study-role/polarity, fixes transferred-evidence semantics, and reserves probability-like confidence for benchmark calibration. The next milestone is ontology grounding plus real Arabidopsis/Populus benchmark data before large-scale propagation.
+v0.4 adds authoritative GO/PO/ChEBI grounding, GO taxon-constraint evaluation, NCBI lineage support, OrthoFinder v3 and MCScanX evidence import, conservative multi-provider evidence fusion, and an evidence-span benchmark scaffold. Large-scale propagation remains disabled until the benchmark is independently curated and transfer precision is calibrated.

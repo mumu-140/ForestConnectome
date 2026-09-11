@@ -6,6 +6,7 @@ from typing import Protocol
 from forestconnectome.extract.schema import ExtractionResult
 from forestconnectome.ingest.chunking import TextChunk
 from forestconnectome.models import Claim
+from forestconnectome.ontology.registry import OntologyRegistry
 from forestconnectome.resolve.aliases import GeneAliasIndex
 from forestconnectome.resolve.entities import edge_to_claim
 from forestconnectome.validate.rules import ValidationDecision, prevalidate_edge
@@ -31,7 +32,8 @@ def process_chunk(
     alias_index: GeneAliasIndex | None = None,
     pmid: str | None = None,
     doi: str | None = None,
-    extractor_version: str = "forestconnectome-v0.3",
+    ontology_registry: OntologyRegistry | None = None,
+    extractor_version: str = "forestconnectome-v0.4",
 ) -> ProcessedChunk:
     result = extractor.extract(chunk)
     accepted: list[Claim] = []
@@ -55,6 +57,8 @@ def process_chunk(
             extractor_version=extractor_version,
             model=extractor.model,
         )
+        if ontology_registry is not None:
+            claim = ontology_registry.ground_claim(claim)
         if decision.status == "accept":
             accepted.append(claim)
         else:

@@ -1,0 +1,25 @@
+# Official ontology artifacts. Production runs should snapshot each file and record
+# its release/version plus SHA256 before benchmark calibration or bulk extraction.
+ontologies:
+  GO:
+    role: biological_process_molecular_function_cellular_component
+    artifact: go-basic.obo
+    source_url: https://purl.obolibrary.org/obo/go/go-basic.obo
+    parser: pronto
+  PO:
+    role: plant_anatomy_and_development
+    artifact: po.obo
+    source_url: https://purl.obolibrary.org/obo/po.obo
+    parser: pronto
+  CHEBI:
+    role: small_molecules_and_metabolites
+    artifact: chebi.obo
+    source_url: https://purl.obolibrary.org/obo/chebi.obo
+    parser: pronto
+
+go_taxon_constraints:
+  artifact: go-computed-taxon-constraints.obo
+  source_url: https://current.geneontology.org/ontology/imports/go-computed-taxon-constraints.obo
+  grouping_artifact: go-taxon-groupings.owl
+  grouping_source_url: https://current.geneontology.org/ontology/imports/go-taxon-groupings.owl
+  policy: unresolved_union_grouping_is_unknown_not_pass

@@ -11,6 +11,7 @@ class OrthologyEvidence:
     phylogenetic_support: float = 0.0
     sequence_support: float = 0.0
     expression_support: float = 0.0
+    independent_method_consensus: bool = False
 
 
 TransferDisposition = Literal["automatic_candidate", "review_candidate", "hypothesis_only", "blocked"]
@@ -46,9 +47,10 @@ _FUNCTIONAL_AUTO_CANDIDATES = {
 
 def classify_transfer(e: OrthologyEvidence) -> str:
     """Classify orthology evidence only; this does not authorize knowledge transfer."""
-    if e.orthology_type == "one_to_one" and e.synteny_support and e.phylogenetic_support >= 0.8:
+    phylogenetic_gate = e.phylogenetic_support >= 0.8 or e.independent_method_consensus
+    if e.orthology_type == "one_to_one" and e.synteny_support and phylogenetic_gate:
         return "T1"
-    if e.orthology_type in {"one_to_many", "many_to_one"} and e.phylogenetic_support >= 0.8:
+    if e.orthology_type in {"one_to_many", "many_to_one"} and phylogenetic_gate:
         return "T2"
     if e.orthology_type in {"many_to_many", "one_to_many", "many_to_one"}:
         return "T3"
@@ -66,12 +68,7 @@ def evaluate_transfer(
     taxon_constraint_status: TaxonConstraintStatus = "unknown",
     term_specificity: TermSpecificity = "unknown",
 ) -> TransferDecision:
-    """Decide whether a claim is transferable after orthology classification.
-
-    The policy intentionally separates orthology confidence from edge conservation.
-    T1 means a strong orthology relationship, not that every source-species relation
-    is conserved in the target species.
-    """
+    """Decide whether a claim is transferable after orthology classification."""
     reasons: list[str] = []
 
     if source_polarity != "affirmed":

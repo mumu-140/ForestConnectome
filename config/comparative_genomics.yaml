@@ -1,0 +1,34 @@
+# Comparative-genomics evidence policy for Arabidopsis -> Populus transfer.
+# These tools are evidence providers; none is treated as a biological gold standard.
+orthofinder:
+  minimum_version: '3.0'
+  role: phylogenetic_orthology_and_duplication_history
+  prefer_phylogenetic_hierarchical_orthogroups: true
+  use_legacy_orthogroups_as_transfer_truth: false
+  include_outgroups: true
+  pairwise_orthologues_input: Orthologues/*/*.tsv
+  duplications_input: Gene_Duplication_Events/Duplications.tsv
+
+mcscanx:
+  implementation: MCScanX_h
+  role: independent_collinearity_synteny_support
+  homology_source: orthofinder_pairwise_orthologues
+  run_mode:
+    inter_species_blocks_only: true
+    pairwise_output_only: true
+  notes:
+    - Gene IDs in GFF and homology input must use the same canonical namespace.
+    - Synteny is supporting evidence and never proves functional conservation by itself.
+
+ensembl_compara:
+  role: independent_curated_gene_tree_orthology_provider
+  compara: plants
+
+fusion:
+  t1_requires:
+    - one_to_one_orthology
+    - independent_synteny_support
+    - phylogenetic_support_or_independent_method_consensus
+  disagreement_policy: choose_more_duplication_prone_interpretation
+  t2_auto_transfer: false
+  regulatory_edges_auto_transfer: false

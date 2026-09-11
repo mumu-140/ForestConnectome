@@ -23,11 +23,14 @@ def make_entity_id(
     taxon_id: int | None = None,
     genome_build: str | None = None,
     canonical_gene_id: str | None = None,
+    canonical_ontology_id: str | None = None,
 ) -> str:
     entity_type_norm = normalize_text(entity_type).replace(" ", "_")
     if entity_type_norm in {"gene", "gene_identifier", "protein", "transcription_factor", "enzyme"}:
         stable_name = canonical_gene_id or normalize_text(label)
         return f"{entity_type_norm}:{taxon_id or 'unknown'}:{genome_build or 'unknown'}:{stable_name}"
+    if canonical_ontology_id:
+        return f"ontology:{canonical_ontology_id}"
     return f"entity:{taxon_id or 'global'}:{entity_type_norm}:{_digest(normalize_text(label))}"
 
 
