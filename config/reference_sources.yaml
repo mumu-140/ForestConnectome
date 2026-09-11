@@ -1,0 +1,33 @@
+reference_species:
+  arabidopsis_thaliana:
+    taxon_id: 3702
+    canonical_namespace: TAIR10
+    canonical_provider: TAIR
+    ensembl_production_name: arabidopsis_thaliana
+
+target_species:
+  populus_trichocarpa:
+    taxon_id: 3694
+    canonical_namespace: Phytozome_v4.1
+    canonical_provider: JGI/Phytozome
+    assembly: GCA_000002775.4
+    ensembl_assembly: Pop_tri_v4
+    ensembl_production_name: populus_trichocarpa
+    canonical_gene_pattern: '^Potri\.\d{3}G\d{6}$'
+
+orthology:
+  primary_provider: Ensembl Plants Compara
+  compara: plants
+  source_species: arabidopsis_thaliana
+  target_species: populus_trichocarpa
+  homology_type: orthologues
+  sequence: none
+  require_external_synteny_for_t1: true
+
+secondary_resources:
+  - provider: TreeGenes
+    role: forest_genomics_archive
+  - provider: PlantGenIE
+    role: forest_expression_and_annotation_enrichment
+  - provider: Phytozome
+    role: populus_identifier_alias_crosswalk
