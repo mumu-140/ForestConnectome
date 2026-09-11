@@ -1,0 +1,13 @@
+profiles:
+  plantconnectome_2025:
+    description: Reproduction-compatible model family from the 2025 PlantConnectome paper.
+    extraction_model: gpt-4o-2024-08-06
+    definition_model: gpt-4o-mini-2024-07-18
+    embedding_model: text-embedding-ada-002
+    transport: batch
+  forestconnectome_current:
+    description: Current cost-aware production profile; all values can be overridden by environment variables.
+    extraction_model: gpt-5.6-luna
+    definition_model: gpt-5.6-luna
+    embedding_model: text-embedding-3-large
+    transport: responses
