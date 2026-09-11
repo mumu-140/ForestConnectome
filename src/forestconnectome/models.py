@@ -13,6 +13,9 @@ class Entity:
     species: Optional[str] = None
     genome_build: Optional[str] = None
     canonical_gene_id: Optional[str] = None
+    canonical_ontology_id: Optional[str] = None
+    ontology_prefix: Optional[str] = None
+    grounding_method: Optional[str] = None
     symbol: Optional[str] = None
     aliases: list[str] = field(default_factory=list)
     definition: Optional[str] = None
@@ -57,6 +60,7 @@ class EntityTransferMetadata:
     phylogenetic_support: Optional[float] = None
     sequence_support: Optional[float] = None
     expression_support: Optional[float] = None
+    independent_method_consensus: bool = False
 
 
 @dataclass(slots=True)

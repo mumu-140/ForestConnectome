@@ -11,16 +11,21 @@ Literature sources
   -> assertion + study-role + polarity separation
   -> per-entity taxon grounding
   -> authoritative entity/ontology grounding
+       - genes: TAIR / Phytozome aliases
+       - process/function/component: GO
+       - plant anatomy/development: PO
+       - chemicals/metabolites: ChEBI
   -> embedding + LLM fallback resolution
   -> canonical relation resolution
   -> direct-evidence graph
 
 Arabidopsis reference graph
-  + Ensembl/OrthoFinder orthology
-  + independent synteny
+  + Ensembl Plants Compara orthology
+  + OrthoFinder v3 gene-tree + duplication evidence
+  + MCScanX_h independent collinearity/synteny
   -> T1-T4 orthology evidence tier
   -> predicate-specific transferability gate
-  -> taxon-constraint + term-specificity gate
+  -> GO computed taxon-constraint + term-specificity gate
   -> transferred prediction / review / hypothesis layer
 
 Direct + transferred graph
@@ -70,3 +75,17 @@ LLM `model_confidence_raw` is retained for diagnostics but is not a scientific p
 ## Producer/Auditor feedback
 
 Every extracted or transferred edge carries a stable `claim_id`. Auditor outcomes are append-only records containing decision, error class, corrected fields, reviewer/model provenance, and timestamp. Producer prompts/rules are versioned so changes can be evaluated against a fixed benchmark set.
+
+## Comparative evidence fusion
+
+The comparative layer is multi-provider by design. Ensembl and OrthoFinder provide independent orthology calls; MCScanX_h provides collinearity evidence. Agreement can strengthen an orthology mapping, while disagreement is resolved conservatively toward the more duplication-prone interpretation. MCScanX synteny does not itself imply functional conservation.
+
+OrthoFinder pairwise orthologue output may be reused as MCScanX_h third-party homology candidates. This avoids redundant homolog discovery while keeping the actual collinearity call independent.
+
+## Ontology applicability
+
+GO/PO/ChEBI grounding happens before semantic fallback. GO computed taxon constraints are checked against the target NCBI lineage before an ontology-backed functional claim can become an automatic transfer candidate. Unknown taxon groupings remain unknown and therefore cannot unlock automatic transfer.
+
+## Benchmark gate
+
+Bulk target-species propagation is not enabled merely because the pipeline executes. Automatic-transfer precision is calibrated on a locked, human-reviewed benchmark containing both known conservation positives and divergence/rewiring negatives. PMID and, where feasible, orthogroup/family grouping are used to prevent train-test leakage.

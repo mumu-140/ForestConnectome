@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING, Iterable, Mapping
 
 from forestconnectome.ids import make_claim_id
 from forestconnectome.models import Claim, Entity, EntityTransferMetadata, Provenance, TransferMetadata
+
+if TYPE_CHECKING:
+    from forestconnectome.ontology.taxon_constraints import GoTaxonConstraintIndex
+
 from forestconnectome.transfer.policy import (
     OrthologyEvidence,
     TaxonConstraintStatus,
@@ -32,8 +37,11 @@ def transfer_claim(
     mappings: dict[str, GeneTransfer],
     *,
     require_automatic: bool = True,
-    taxon_constraint_status: TaxonConstraintStatus = "unknown",
+    taxon_constraint_status: TaxonConstraintStatus | None = None,
     term_specificity: TermSpecificity = "unknown",
+    go_taxon_constraints: "GoTaxonConstraintIndex | None" = None,
+    target_lineage_taxon_ids: Iterable[int] = (),
+    taxon_grouping_members: Mapping[str, set[int]] | None = None,
 ) -> Claim | None:
     """Project a reference claim without conflating orthology with edge conservation."""
     if claim.evidence_origin != "direct":
@@ -56,6 +64,23 @@ def transfer_claim(
 
     tiers = [classify_transfer(m.evidence) for m in applicable]
     tier = max(tiers, key=lambda x: int(x[1:]))
+
+    resolved_taxon_status: TaxonConstraintStatus
+    if taxon_constraint_status is not None:
+        resolved_taxon_status = taxon_constraint_status
+    elif go_taxon_constraints is not None:
+        from forestconnectome.ontology.taxon_constraints import evaluate_claim_go_constraints
+
+        resolved_taxon_status = evaluate_claim_go_constraints(
+            claim,
+            go_taxon_constraints,
+            target_taxon_id=next(iter(target_taxa)),
+            lineage_taxon_ids=target_lineage_taxon_ids,
+            grouping_members=taxon_grouping_members,
+        ).status
+    else:
+        resolved_taxon_status = "unknown"
+
     decision = evaluate_transfer(
         predicate=claim.predicate,
         orthology_tier=tier,
@@ -63,7 +88,7 @@ def transfer_claim(
         source_study_role=claim.study_role,
         source_evidence_type=claim.evidence_type,
         source_polarity=claim.polarity,
-        taxon_constraint_status=taxon_constraint_status,
+        taxon_constraint_status=resolved_taxon_status,
         term_specificity=term_specificity,
     )
     if decision.disposition == "blocked":
@@ -105,6 +130,7 @@ def transfer_claim(
             phylogenetic_support=m.evidence.phylogenetic_support,
             sequence_support=m.evidence.sequence_support,
             expression_support=m.evidence.expression_support,
+            independent_method_consensus=m.evidence.independent_method_consensus,
         )
         for m in applicable
     ]
@@ -115,7 +141,7 @@ def transfer_claim(
         transfer_tier=tier,
         transfer_disposition=decision.disposition,
         reason_codes=list(decision.reason_codes),
-        taxon_constraint_status=taxon_constraint_status,
+        taxon_constraint_status=resolved_taxon_status,
         term_specificity=term_specificity,
         source_evidence_type=claim.evidence_type,
         source_assertion_status=claim.assertion_status,

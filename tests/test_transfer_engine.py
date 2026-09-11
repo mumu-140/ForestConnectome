@@ -98,3 +98,43 @@ def test_transferred_claim_cannot_be_cascaded_to_another_species():
     )
     assert first is not None
     assert transfer_claim(first, {}) is None
+
+
+def test_transfer_engine_can_resolve_go_taxon_constraint_from_grounded_term():
+    from forestconnectome.ontology.taxon_constraints import GoTaxonConstraintIndex, TaxonConstraint
+
+    source, at = _source_claim()
+    source.object.canonical_ontology_id = "GO:0009832"
+    source.object.ontology_prefix = "GO"
+    mapping, _ = _t1_mapping(at)
+    constraints = GoTaxonConstraintIndex(
+        [TaxonConstraint("GO:0009832", "only_in_taxon", "NCBITaxon:33090")]
+    )
+    transferred = transfer_claim(
+        source,
+        {at.entity_id: mapping},
+        go_taxon_constraints=constraints,
+        target_lineage_taxon_ids={3694, 33090, 3193},
+        term_specificity="broad",
+    )
+    assert transferred is not None
+    assert transferred.transfer.taxon_constraint_status == "pass"
+
+
+def test_transfer_engine_blocks_go_taxon_constraint_mismatch():
+    from forestconnectome.ontology.taxon_constraints import GoTaxonConstraintIndex, TaxonConstraint
+
+    source, at = _source_claim()
+    source.object.canonical_ontology_id = "GO:0009832"
+    source.object.ontology_prefix = "GO"
+    mapping, _ = _t1_mapping(at)
+    constraints = GoTaxonConstraintIndex(
+        [TaxonConstraint("GO:0009832", "never_in_taxon", "NCBITaxon:33090")]
+    )
+    assert transfer_claim(
+        source,
+        {at.entity_id: mapping},
+        go_taxon_constraints=constraints,
+        target_lineage_taxon_ids={3694, 33090, 3193},
+        term_specificity="broad",
+    ) is None
