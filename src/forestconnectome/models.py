@@ -23,6 +23,13 @@ class Entity:
 
 
 @dataclass(slots=True)
+class TaxonContext:
+    species: Optional[str] = None
+    taxon_id: Optional[int] = None
+    role: str = "described"
+
+
+@dataclass(slots=True)
 class Provenance:
     source_id: str
     pmid: Optional[str] = None
@@ -58,7 +65,15 @@ class TransferMetadata:
     source_taxon_id: int
     target_taxon_id: int
     transfer_tier: str
-    transfer_confidence: float
+    transfer_disposition: str
+    reason_codes: list[str] = field(default_factory=list)
+    taxon_constraint_status: str = "unknown"
+    term_specificity: str = "unknown"
+    source_evidence_type: str = "other"
+    source_assertion_status: str = "observed"
+    source_study_role: str = "unknown"
+    source_model_confidence_raw: Optional[float] = None
+    source_calibrated_confidence: Optional[float] = None
     mappings: list[EntityTransferMetadata] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
@@ -74,9 +89,13 @@ class Claim:
     evidence_origin: str
     assertion_status: str
     provenance: Provenance
+    study_role: str = "unknown"
+    polarity: str = "affirmed"
+    study_taxa: list[TaxonContext] = field(default_factory=list)
     evidence_type: str = "other"
     species_scope: str = "unspecified"
-    confidence: float = 0.0
+    model_confidence_raw: Optional[float] = None
+    calibrated_confidence: Optional[float] = None
     transfer: Optional[TransferMetadata] = None
 
     def to_dict(self) -> dict[str, Any]:

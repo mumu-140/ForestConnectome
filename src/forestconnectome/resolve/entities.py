@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from forestconnectome.extract.schema import ExtractedEdge
 from forestconnectome.ids import make_claim_id, make_entity_id
-from forestconnectome.models import Claim, Entity, Provenance
+from forestconnectome.models import Claim, Entity, Provenance, TaxonContext
 from forestconnectome.resolve.aliases import GeneAliasIndex
 from forestconnectome.resolve.relations import normalize_relation
 
@@ -37,8 +37,6 @@ def _resolve_entity(
                 genome_build = result.record.genome_build
                 species = result.record.species
 
-    # Taxon is an intrinsic identity constraint for gene-like entities, not for
-    # shared concepts such as processes, tissues, phenotypes, chemicals or stresses.
     identity_taxon = taxon_id if normalized_type in _GENE_LIKE else None
     identity_species = species if normalized_type in _GENE_LIKE else None
     entity_id = make_entity_id(
@@ -63,6 +61,13 @@ def _resolve_entity(
     )
 
 
+def _single_study_taxon(edge: ExtractedEdge) -> tuple[int | None, str | None]:
+    """Return a unique study taxon only when one unambiguous taxon is present."""
+    usable = [(item.taxon_id, item.species) for item in edge.study_taxa if item.taxon_id is not None or item.species]
+    unique = list(dict.fromkeys(usable))
+    return unique[0] if len(unique) == 1 else (None, None)
+
+
 def edge_to_claim(
     edge: ExtractedEdge,
     *,
@@ -76,19 +81,26 @@ def edge_to_claim(
     model: str | None = None,
 ) -> Claim:
     relation = normalize_relation(edge.relationship)
+
+    fallback_taxon, fallback_species = _single_study_taxon(edge)
+    source_taxon = edge.source_taxon_id if edge.source_taxon_id is not None else fallback_taxon
+    source_species = edge.source_species if edge.source_species is not None else fallback_species
+    target_taxon = edge.target_taxon_id if edge.target_taxon_id is not None else fallback_taxon
+    target_species = edge.target_species if edge.target_species is not None else fallback_species
+
     subject = _resolve_entity(
         edge.source,
         edge.source_type,
-        taxon_id=edge.taxon_id,
-        species=edge.species,
+        taxon_id=source_taxon,
+        species=source_species,
         definition=edge.source_definition,
         alias_index=alias_index,
     )
     obj = _resolve_entity(
         edge.target,
         edge.target_type,
-        taxon_id=edge.taxon_id,
-        species=edge.species,
+        taxon_id=target_taxon,
+        species=target_species,
         definition=edge.target_definition,
         alias_index=alias_index,
     )
@@ -122,7 +134,11 @@ def edge_to_claim(
         evidence_origin="direct",
         assertion_status=edge.assertion_status,
         provenance=provenance,
+        study_role=edge.study_role,
+        polarity=edge.polarity,
+        study_taxa=[TaxonContext(item.species, item.taxon_id, item.role) for item in edge.study_taxa],
         evidence_type=edge.evidence_type,
         species_scope=edge.species_scope,
-        confidence=edge.confidence,
+        model_confidence_raw=edge.model_confidence_raw,
+        calibrated_confidence=None,
     )
