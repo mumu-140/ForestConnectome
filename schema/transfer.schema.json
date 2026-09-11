@@ -7,25 +7,15 @@
     "source_taxon_id": {"type": "integer"},
     "target_taxon_id": {"type": "integer"},
     "transfer_tier": {"enum": ["T1", "T2", "T3", "T4"]},
-    "transfer_confidence": {"type": "number", "minimum": 0, "maximum": 1},
-    "mappings": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["source_entity_id", "target_entity_id", "source_taxon_id", "target_taxon_id", "orthology_type"],
-        "properties": {
-          "source_entity_id": {"type": "string"},
-          "target_entity_id": {"type": "string"},
-          "source_taxon_id": {"type": "integer"},
-          "target_taxon_id": {"type": "integer"},
-          "orthogroup_id": {"type": ["string", "null"]},
-          "orthology_type": {"enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many", "homology_only"]},
-          "synteny_support": {"type": ["boolean", "null"]},
-          "phylogenetic_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-          "sequence_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
-          "expression_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1}
-        }
-      }
-    }
+    "transfer_disposition": {"enum": ["automatic_candidate", "review_candidate", "hypothesis_only", "blocked"]},
+    "reason_codes": {"type": "array", "items": {"type": "string"}},
+    "taxon_constraint_status": {"enum": ["pass", "fail", "unknown"]},
+    "term_specificity": {"enum": ["broad", "moderate", "specific", "unknown"]},
+    "source_evidence_type": {"type": "string"},
+    "source_assertion_status": {"type": "string"},
+    "source_study_role": {"type": "string"},
+    "source_model_confidence_raw": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "source_calibrated_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "mappings": {"type": "array", "items": {"type": "object", "required": ["source_entity_id", "target_entity_id", "source_taxon_id", "target_taxon_id", "orthology_type"], "properties": {"source_entity_id": {"type": "string"}, "target_entity_id": {"type": "string"}, "source_taxon_id": {"type": "integer"}, "target_taxon_id": {"type": "integer"}, "orthogroup_id": {"type": ["string", "null"]}, "orthology_type": {"enum": ["one_to_one", "one_to_many", "many_to_one", "many_to_many", "homology_only"]}, "synteny_support": {"type": ["boolean", "null"]}, "phylogenetic_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1}, "sequence_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1}, "expression_support": {"type": ["number", "null"], "minimum": 0, "maximum": 1}}}}
   }
 }

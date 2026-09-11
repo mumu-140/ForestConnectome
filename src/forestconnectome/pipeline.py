@@ -31,7 +31,7 @@ def process_chunk(
     alias_index: GeneAliasIndex | None = None,
     pmid: str | None = None,
     doi: str | None = None,
-    extractor_version: str = "forestconnectome-v0.2",
+    extractor_version: str = "forestconnectome-v0.3",
 ) -> ProcessedChunk:
     result = extractor.extract(chunk)
     accepted: list[Claim] = []

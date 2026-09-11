@@ -22,8 +22,11 @@ def prevalidate_edge(edge: ExtractedEdge, chunk: TextChunk) -> ValidationDecisio
     if edge.assertion_status == "hypothesized":
         reasons.append("hypothesis_not_direct_fact")
         status = "review"
-    if edge.assertion_status == "background":
-        reasons.append("background_or_prior_literature")
+    if edge.study_role in {"prior_work", "review_statement", "discussion_interpretation", "unknown"}:
+        reasons.append(f"study_role_{edge.study_role}")
+        status = "review"
+    if edge.polarity != "affirmed":
+        reasons.append(f"polarity_{edge.polarity}")
         status = "review"
     if not edge.source.strip() or not edge.target.strip() or not edge.relationship.strip():
         reasons.append("missing_edge_component")

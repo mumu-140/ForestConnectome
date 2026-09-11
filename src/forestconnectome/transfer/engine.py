@@ -4,7 +4,13 @@ from dataclasses import dataclass
 
 from forestconnectome.ids import make_claim_id
 from forestconnectome.models import Claim, Entity, EntityTransferMetadata, Provenance, TransferMetadata
-from forestconnectome.transfer.policy import OrthologyEvidence, allows_automatic_transfer, classify_transfer
+from forestconnectome.transfer.policy import (
+    OrthologyEvidence,
+    TaxonConstraintStatus,
+    TermSpecificity,
+    classify_transfer,
+    evaluate_transfer,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,14 +31,14 @@ def transfer_claim(
     claim: Claim,
     mappings: dict[str, GeneTransfer],
     *,
-    require_automatic_tier: bool = True,
+    require_automatic: bool = True,
+    taxon_constraint_status: TaxonConstraintStatus = "unknown",
+    term_specificity: TermSpecificity = "unknown",
 ) -> Claim | None:
-    """Project a reference claim to a target taxon without erasing source evidence.
+    """Project a reference claim without conflating orthology with edge conservation."""
+    if claim.evidence_origin != "direct":
+        return None
 
-    Every gene-like endpoint must have a mapping. Shared concepts such as processes,
-    tissues, phenotypes and chemicals are retained. Each mapped endpoint keeps its own
-    orthology evidence because gene-gene edges generally involve two orthogroups.
-    """
     source_map = mappings.get(claim.subject.entity_id) if _is_gene_like(claim.subject) else None
     object_map = mappings.get(claim.object.entity_id) if _is_gene_like(claim.object) else None
     if _is_gene_like(claim.subject) and source_map is None:
@@ -49,14 +55,24 @@ def transfer_claim(
         return None
 
     tiers = [classify_transfer(m.evidence) for m in applicable]
-    tier = max(tiers, key=lambda x: int(x[1:]))  # weakest endpoint controls edge tier
-    if require_automatic_tier and not allows_automatic_transfer(tier):
+    tier = max(tiers, key=lambda x: int(x[1:]))
+    decision = evaluate_transfer(
+        predicate=claim.predicate,
+        orthology_tier=tier,
+        source_assertion_status=claim.assertion_status,
+        source_study_role=claim.study_role,
+        source_evidence_type=claim.evidence_type,
+        source_polarity=claim.polarity,
+        taxon_constraint_status=taxon_constraint_status,
+        term_specificity=term_specificity,
+    )
+    if decision.disposition == "blocked":
+        return None
+    if require_automatic and decision.disposition != "automatic_candidate":
         return None
 
     subject = source_map.target if source_map else claim.subject
     obj = object_map.target if object_map else claim.object
-    confidence_by_tier = {"T1": 0.9, "T2": 0.7, "T3": 0.4, "T4": 0.2}
-    transfer_confidence = min(claim.confidence, confidence_by_tier[tier])
 
     provenance = Provenance(
         source_id=claim.provenance.source_id,
@@ -97,19 +113,32 @@ def transfer_claim(
         source_taxon_id=next(iter(source_taxa)),
         target_taxon_id=next(iter(target_taxa)),
         transfer_tier=tier,
-        transfer_confidence=transfer_confidence,
+        transfer_disposition=decision.disposition,
+        reason_codes=list(decision.reason_codes),
+        taxon_constraint_status=taxon_constraint_status,
+        term_specificity=term_specificity,
+        source_evidence_type=claim.evidence_type,
+        source_assertion_status=claim.assertion_status,
+        source_study_role=claim.study_role,
+        source_model_confidence_raw=claim.model_confidence_raw,
+        source_calibrated_confidence=claim.calibrated_confidence,
         mappings=entity_mappings,
     )
+    target_assertion = "hypothesized" if decision.disposition == "hypothesis_only" else "predicted"
     return Claim(
         claim_id=transferred_id,
         subject=subject,
         predicate=claim.predicate,
         object=obj,
         evidence_origin="orthology_transfer",
-        assertion_status="predicted",
+        assertion_status=target_assertion,
         provenance=provenance,
-        evidence_type=claim.evidence_type,
-        species_scope="exact_species",
-        confidence=transfer_confidence,
+        study_role="derived_transfer",
+        polarity="affirmed",
+        study_taxa=[],
+        evidence_type="computational",
+        species_scope="unspecified",
+        model_confidence_raw=None,
+        calibrated_confidence=None,
         transfer=meta,
     )
