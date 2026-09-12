@@ -102,6 +102,12 @@ forestconnectome import-mcscanx arabidopsis_populus.collinearity synteny.jsonl
 
 The first real benchmark seeds live in `data/benchmark/seed_articles.tsv` and `data/benchmark/gold_seed.jsonl`. They deliberately contain both functional-conservation positives and duplicate/expression/regulatory divergence controls.
 
+## License
+
+ForestConnectome code and repository-authored documentation are released under the **MIT License**; see `LICENSE`.
+
+Third-party software, ontologies, literature and reference data remain under their own licenses and terms. See `THIRD_PARTY_NOTICES.md`. Restricted or non-redistributable external artifacts should remain outside the repository and be tracked by release/commit, source URL, retrieval time and SHA256 in the production provenance manifests.
+
 ## Status
 
-v0.4 adds authoritative GO/PO/ChEBI grounding, GO taxon-constraint evaluation, NCBI lineage support, OrthoFinder v3 and MCScanX evidence import, conservative multi-provider evidence fusion, and an evidence-span benchmark scaffold. Large-scale propagation remains disabled until the benchmark is independently curated and transfer precision is calibrated.
+v0.4.1 adds an explicit MIT license and third-party licensing boundary to the v0.4 scientific/data pipeline. Large-scale propagation remains disabled until the benchmark is independently curated and transfer precision is calibrated.
